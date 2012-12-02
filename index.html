@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>KOJS BarChart</title>
+	<script type="text/javascript" src="jquery-1.7.2.min.js"></script>
+	<script type="text/javascript" src="knockout-2.2.0.js"></script>
+	<script type="text/javascript" src="barchart.js"></script>
+</head>
+
+<body>
+	<h1>KO barchart example</h1>
+	<ol>
+	<li>Click add to add a column</li>
+	<li>Change its name and value (up to 27 I think)</li>
+	<li>Add some more columns in the same way</li>
+	</ol>
+	<span id="fps"></span> fps<br/>
+	<canvas id="myCanvas" width="800" height="300" style="border:1px solid #c3c3c3;" data-bind="barChartCanvas: values()"></canvas>
+	
+	<div data-bind="foreach: values">
+		<div>
+			<input data-bind="value: name" />
+			<input data-bind="value: val" />
+		</div>
+	</div>
+	<button data-bind="click: $root.addValue">Add</button>
+	
+	<script language="javascript">
+		function ChartEntry(aname, aval) {
+			this.name = ko.observable(aname);
+			this.val = ko.observable(aval);
+		}
+	
+		ko.bindingHandlers.barChartCanvas = {
+			update: function(element, valueAccessor) {
+				var ctx=element.getContext("2d");
+				drawFrame(valueAccessor(), ctx);
+			}
+		};
+	
+		function BarViewModel() {
+			var self = this;
+			
+			self.values = ko.observableArray([new ChartEntry('', 0)]);
+			self.addValue = function() {
+				self.values.push(new ChartEntry('',0));
+			};
+		} 
+		
+		ko.applyBindings(new BarViewModel());
+	
+		var dragable = false;
+		
+		$('#myCanvas').bind('mousedown', function() { dragable = !dragable; });
+		
+		$('body').bind('blur', function( event ){
+				if(dragable)
+				{
+					$(this ).css({
+						position: 'absolute',
+                        top: event.pageY -100,
+                        left: event.pageX - 100
+					});
+				}
+			});
+	</script>
+</body>
+</html>
